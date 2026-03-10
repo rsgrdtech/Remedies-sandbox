@@ -1323,15 +1323,15 @@ function formatRemedyName(remedy) {
     const name = remedy['Remedy Name'] || '';
     const potency = remedy['Potency'] || '';
 
-    // Combine name and potency with a maximum of 21 characters
+    // Combine name and potency with a maximum of 19 characters
     const fullText = `${name} (${potency})`;
 
-    if (fullText.length <= 21) {
+    if (fullText.length <= 19) {
         return fullText;
     }
 
     // Truncate the name part and add ellipsis if needed
-    const maxNameLength = 21 - potency.length - 4; // 4 characters for " ()" and ellipsis
+    const maxNameLength = 19 - potency.length - 4; // 4 characters for " ()" and ellipsis
     const truncatedName = name.length > maxNameLength ?
         name.substring(0, maxNameLength) + '...' : name;
 
