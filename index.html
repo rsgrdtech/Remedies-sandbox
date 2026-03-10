@@ -1552,7 +1552,7 @@ function searchRemedies() {
         return;
     }
 
-    addDebugLog(`Type-ahead searching remedies for: "${searchTerm}"`);
+    addDebugLog(`Searching remedies for: "${searchTerm}"`);
 
     // Show remedies pane
     showPane('remediesPane');
@@ -1581,7 +1581,7 @@ function searchRemedies() {
             const remedyNamePart = potencyMatch[1].toLowerCase();
             const potencyPart = potencyMatch[2].toUpperCase();
             
-            addDebugLog(`Type-ahead searching for remedy pattern: name="${remedyNamePart}", potency="${potencyPart}"`);
+            addDebugLog(`Searching for remedy pattern: name="${remedyNamePart}", potency="${potencyPart}"`);
             
             // Search for remedies matching both name and potency
             termResults = remediesData.filter(remedy => {
@@ -1592,7 +1592,7 @@ function searchRemedies() {
             });
         } else {
             // Regular prefix search - only from start of remedy name
-            addDebugLog(`Type-ahead performing prefix search for: "${term}"`);
+            addDebugLog(`Performing prefix search for: "${term}"`);
             
             termResults = remediesData.filter(remedy => {
                 const name = (remedy['Remedy Name'] || '').toLowerCase();
@@ -1659,28 +1659,67 @@ function searchRemedies() {
     allRemediesTable.style.display = 'none';
 }
 
-// Set up real-time type-ahead search
+// Proper type-ahead setup
 function setupTypeAheadSearch() {
     let searchTimeout;
     
-    remedySearch.addEventListener('input', () => {
+    // Remove any existing event listeners first
+    remedySearch.removeEventListener('input', handleTypeAheadInput);
+    remedySearch.removeEventListener('keypress', handleTypeAheadKeypress);
+    
+    function handleTypeAheadInput() {
         // Clear previous timeout
         clearTimeout(searchTimeout);
         
-        // Set new timeout (300ms debounce)
+        // Set new timeout (500ms debounce)
         searchTimeout = setTimeout(() => {
             searchRemedies();
-        }, 300);
-    });
+        }, 500);
+    }
     
-    // Also allow Enter key for immediate search
-    remedySearch.addEventListener('keypress', (e) => {
+    function handleTypeAheadKeypress(e) {
         if (e.key === 'Enter') {
+            // Clear timeout and search immediately on Enter
             clearTimeout(searchTimeout);
             searchRemedies();
         }
-    });
+    }
+    
+    // Add event listeners
+    remedySearch.addEventListener('input', handleTypeAheadInput);
+    remedySearch.addEventListener('keypress', handleTypeAheadKeypress);
 }
+
+// Update the initialize function to properly set up type-ahead
+function initializeApp() {
+    // Set today's date as default visit date
+    const today = getTodayDate();
+    if (visitDate) visitDate.value = today;
+
+    // Show remedies pane by default
+    showPane('remediesPane');
+
+    // Load remedies database from Google Sheets
+    fetchGoogleSheetData();
+
+    // Set up event listeners
+    setupEventListeners();
+    
+    // Set up type-ahead search AFTER remedies data is loaded
+    setTimeout(() => {
+        setupTypeAheadSearch();
+        addDebugLog('Type-ahead search initialized');
+    }, 1000); // Small delay to ensure DOM is ready
+}
+
+// Replace the DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+// Also update the search button to work with type-ahead
+searchRemediesBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    searchRemedies();
+});
 
 
 function listAllRemedies() {
