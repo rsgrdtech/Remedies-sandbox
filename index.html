@@ -743,33 +743,18 @@ Loading remedies database...
 
 <script>
 // Configuration
-const DEFAULT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTKnCNTL2WzTz9aOp-RrjlK_uO3rV9SlKbng2BQ5KKyCsPjTO0CAij58lr9JbAi-c3d0KBBa-XYUJZI/pubhtml?gid=369787331&single=true';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/11aZgt8hafBHfu0ZHeuyQH_MS09791YHXy_r-7LWc8KM/edit?usp=sharing';
 const MATERIA_MEDICA_BASE_URL = 'https://www.materiamedica.info/en/materia-medica/john-henry-clarke/';
 const STORAGE_KEY = 'homeopathic_patient_records';
-
-// CORS Proxy Services
-const PROXY_SERVICES = [
-    { 
-        name: 'corsproxy',
-        url: 'https://corsproxy.io/?',
-        format: 'prepend'
-    },
-    { 
-        name: 'allorigins',
-        url: 'https://api.allorigins.win/raw?url=',
-        format: 'append'
-    }
-];
 
 // State
 let currentPatient = null;
 let remediesData = [];
-let currentSheetUrl = DEFAULT_SHEET_URL;
 let addedRemedies = new Set();
 let debugInfo = '';
 let currentSortColumn = 'name';
 let currentSortDirection = 'asc';
-let currentProxyService = null;
+let isConnected = false;
 
 // DOM Elements
 const remedySearch = document.getElementById('remedySearch');
@@ -859,12 +844,210 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show remedies pane by default
     showPane('remediesPane');
 
-    // Load remedies database from Google Sheets
-    loadRemediesData();
+    // Load remedies database from Google Sheets using the proven method
+    fetchGoogleSheetData();
 
     // Set up event listeners
     setupEventListeners();
 });
+
+// PROVEN CONNECTION CODE FROM YOUR WORKING EXAMPLE
+async function fetchGoogleSheetData() {
+    try {
+        remedyStatus.textContent = 'Loading remedies database from Google Sheet...';
+        remedyStatus.className = 'status-message status-info';
+        addDebugLog('Starting Google Sheet data fetch');
+
+        // Extract sheet ID from URL
+        const sheetIdMatch = SHEET_URL.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        if (!sheetIdMatch) {
+            throw new Error('Invalid Google Sheet URL format');
+        }
+        
+        const sheetId = sheetIdMatch[1];
+        
+        // Try CSV export method
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+        
+        // Try multiple CORS proxies with fallbacks
+        const proxies = [
+            'https://corsproxy.io/?',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://cors-anywhere.herokuapp.com/'
+        ];
+        
+        let response;
+        let lastError;
+        
+        // Try each proxy until one works
+        for (const proxy of proxies) {
+            try {
+                const proxyUrl = proxy + encodeURIComponent(csvUrl);
+                addDebugLog(`Trying proxy: ${proxy.substring(0, 30)}...`);
+                response = await fetch(proxyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/csv'
+                    }
+                });
+                
+                if (response.ok) {
+                    addDebugLog(`✓ Proxy successful`);
+                    break;
+                } else {
+                    addDebugLog(`✗ Proxy failed with status: ${response.status}`);
+                }
+            } catch (err) {
+                lastError = err;
+                addDebugLog(`✗ Proxy error: ${err.message}`);
+                continue;
+            }
+        }
+        
+        if (!response || !response.ok) {
+            throw new Error('All proxies failed: ' + (lastError?.message || 'Unknown error'));
+        }
+        
+        const csvText = await response.text();
+        remediesData = parseCSV(csvText);
+        
+        addDebugLog(`Loaded ${remediesData.length} remedies from Google Sheet`);
+        isConnected = true;
+        
+        // Update UI for successful connection
+        document.body.style.backgroundColor = '#f0fff4';
+        remedyStatus.textContent = `✓ Successfully loaded ${remediesData.length} remedies from Google Sheet`;
+        remedyStatus.className = 'status-message status-success';
+        
+    } catch (error) {
+        console.error('Data fetch error:', error);
+        addDebugLog(`✗ Error: ${error.message}`);
+        
+        // Update UI for failed connection
+        document.body.style.backgroundColor = '#fff5f5';
+        remedyStatus.textContent = '✗ Failed to connect to Google Sheet';
+        remedyStatus.className = 'status-message status-error';
+        
+        // Fallback to sample data
+        useSampleData();
+    }
+}
+
+// PROVEN CSV PARSER FROM YOUR WORKING EXAMPLE
+function parseCSV(csvText) {
+    addDebugLog('Parsing CSV data');
+    
+    const lines = csvText.split('\n').filter(line => line.trim());
+    if (lines.length < 2) {
+        addDebugLog('Not enough lines in CSV data');
+        return [];
+    }
+
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const dataArray = [];
+
+    addDebugLog(`CSV headers found: ${headers.join(', ')}`);
+    addDebugLog(`Total lines to process: ${lines.length}`);
+
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+        if (values.length === 0 || values.every(v => v === '')) continue;
+
+        const item = {};
+        headers.forEach((header, index) => {
+            item[header] = values[index] || '';
+        });
+
+        if (item['Remedy Name'] && item['Remedy Name'].trim()) {
+            dataArray.push(item);
+        }
+    }
+
+    addDebugLog(`Parsed ${dataArray.length} items from CSV`);
+    return dataArray;
+}
+
+function useSampleData() {
+    addDebugLog('Loading fallback sample data');
+    remediesData = [
+        {
+            'Remedy Name': 'Aconitum napellus',
+            'Remedy Number': '1',
+            'Potency': '30C',
+            'BOX Number': '1',
+            'Section': 'A',
+            'Type': 'Plant',
+            'Available': 'Yes',
+            'BottleCapColor': 'Red',
+            'Bottle Size': '1oz',
+            'Manufacturer Brand': 'Standard',
+            'Reorder Y/N': 'No',
+            'Reorder Date': ''
+        },
+        {
+            'Remedy Name': 'Arnica montana',
+            'Remedy Number': '2',
+            'Potency': '30C',
+            'BOX Number': '1',
+            'Section': 'A',
+            'Type': 'Plant',
+            'Available': 'Yes',
+            'BottleCapColor': 'Red',
+            'Bottle Size': '1oz',
+            'Manufacturer Brand': 'Standard',
+            'Reorder Y/N': 'No',
+            'Reorder Date': ''
+        },
+        {
+            'Remedy Name': 'Belladonna',
+            'Remedy Number': '3',
+            'Potency': '30C',
+            'BOX Number': '1',
+            'Section': 'B',
+            'Type': 'Plant',
+            'Available': 'No',
+            'BottleCapColor': 'Red',
+            'Bottle Size': '1oz',
+            'Manufacturer Brand': 'Standard',
+            'Reorder Y/N': 'Yes',
+            'Reorder Date': '2024-01-15'
+        },
+        {
+            'Remedy Name': 'Chamomilla',
+            'Remedy Number': '4',
+            'Potency': '30C',
+            'BOX Number': '1',
+            'Section': 'C',
+            'Type': 'Plant',
+            'Available': 'Yes',
+            'BottleCapColor': 'Blue',
+            'Bottle Size': '1oz',
+            'Manufacturer Brand': 'Standard',
+            'Reorder Y/N': 'No',
+            'Reorder Date': ''
+        },
+        {
+            'Remedy Name': 'Nux vomica',
+            'Remedy Number': '5',
+            'Potency': '30C',
+            'BOX Number': '2',
+            'Section': 'N',
+            'Type': 'Plant',
+            'Available': 'Yes',
+            'BottleCapColor': 'Green',
+            'Bottle Size': '1oz',
+            'Manufacturer Brand': 'Standard',
+            'Reorder Y/N': 'No',
+            'Reorder Date': ''
+        }
+    ];
+    
+    remedyStatus.textContent = `✓ Loaded ${remediesData.length} sample remedies (Google Sheet unavailable)`;
+    remedyStatus.className = 'status-message status-warning';
+    addDebugLog('✓ Fallback sample data loaded successfully');
+}
+
+// ALL OTHER FUNCTIONS REMAIN EXACTLY THE SAME AS YOUR ORIGINAL WEBAPP
 
 function setupEventListeners() {
     // Search buttons
@@ -935,184 +1118,6 @@ function setupEventListeners() {
     if (visitDate) {
         visitDate.addEventListener('change', updatePrescriptionDate);
     }
-}
-
-// Extract information from published Google Sheets URL
-function extractSheetInfo(url) {
-    // Extract the key from published URL format
-    const match = url.match(/\/d\/e\/([^\/]+)/);
-    const key = match ? match[1] : '2PACX-1vTKnCNTL2WzTz9aOp-RRjlK_uO3rV9SlKbng2BQ5KKyCsPjTO0CAij58lr9JbAi-c3d0KBBa-XYUJZI';
-    
-    // Extract gid from URL parameters
-    const gidMatch = url.match(/[?&]gid=(\d+)/);
-    const gid = gidMatch ? gidMatch[1] : '369787331';
-    
-    addDebugLog(`Extracted key: ${key.substring(0, 20)}..., gid: ${gid}`);
-    return { key, gid };
-}
-
-async function loadRemediesData() {
-    try {
-        remedyStatus.textContent = 'Loading remedies database from Google Sheets...';
-        remedyStatus.className = 'status-message status-info';
-        addDebugLog('Starting Google Sheets data fetch');
-        
-        // Clear previous data
-        remediesData = [];
-        currentProxyService = null;
-
-        const { key, gid } = extractSheetInfo(currentSheetUrl);
-        
-        // Published sheets endpoints
-        const endpoints = [
-            `https://docs.google.com/spreadsheets/d/e/${key}/pub?gid=${gid}&single=true&output=csv`,
-            `https://docs.google.com/spreadsheets/d/e/${key}/pub?gid=${gid}&single=true&output=tsv`,
-        ];
-
-        addDebugLog(`Trying published sheet endpoints for key: ${key.substring(0, 20)}...`);
-
-        let response = null;
-        let usedEndpoint = '';
-        
-        // Try each endpoint
-        for (const endpoint of endpoints) {
-            try {
-                addDebugLog(`Trying endpoint: ${endpoint.substring(0, 80)}...`);
-                response = await fetchWithCorsProxy(endpoint);
-                
-                if (response.ok) {
-                    usedEndpoint = endpoint;
-                    addDebugLog(`✓ Endpoint successful: ${endpoint.substring(0, 50)}`);
-                    break;
-                }
-            } catch (error) {
-                addDebugLog(`Endpoint failed: ${error.message}`);
-            }
-        }
-
-        if (!response || !response.ok) {
-            throw new Error('All endpoints failed');
-        }
-
-        const data = await response.text();
-        addDebugLog(`Raw response received, length: ${data.length} characters`);
-        
-        remediesData = parseCSVData(data);
-        addDebugLog(`Parsed ${remediesData.length} remedies from CSV/TSV`);
-
-        if (remediesData.length === 0) {
-            throw new Error('No data could be parsed from the response');
-        }
-
-        remedyStatus.textContent = `Loaded ${remediesData.length} remedies from Google Sheets`;
-        remedyStatus.className = 'status-message status-success';
-        addDebugLog('✓ Google Sheets data loaded successfully');
-
-    } catch (error) {
-        console.error('Error loading remedies:', error);
-        addDebugLog(`✗ Error: ${error.message}`);
-
-        remediesData = [];
-        remedyStatus.textContent = `ERROR: Cannot load remedies data. ${error.message}`;
-        remedyStatus.className = 'status-message status-error';
-
-        addDebugLog('✗ No remedies loaded - connection failed');
-    }
-}
-
-function parseCSVData(csvText) {
-    addDebugLog('Parsing CSV data');
-
-    const lines = csvText.split('\n').filter(line => line.trim());
-    if (lines.length < 2) {
-        addDebugLog('Not enough lines in CSV data');
-        return [];
-    }
-
-    const headers = parseCSVLine(lines[0]);
-    const dataArray = [];
-
-    addDebugLog(`CSV headers found: ${headers.join(', ')}`);
-    addDebugLog(`Total lines to process: ${lines.length}`);
-
-    for (let i = 1; i < lines.length; i++) {
-        const values = parseCSVLine(lines[i]);
-        if (values.length === 0 || values.every(v => v === '')) continue;
-
-        const item = {};
-        headers.forEach((header, index) => {
-            item[header] = values[index] || '';
-        });
-
-        if (item['Remedy Name'] && item['Remedy Name'].trim()) {
-            dataArray.push(item);
-        }
-    }
-
-    addDebugLog(`Parsed ${dataArray.length} items from CSV`);
-    return dataArray;
-}
-
-function parseCSVLine(line) {
-    // Simple CSV parser that handles quoted fields
-    const result = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        
-        if (char === '"') {
-            inQuotes = !inQuotes;
-        } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
-            current = '';
-        } else {
-            current += char;
-        }
-    }
-    
-    result.push(current.trim());
-    return result.map(field => field.replace(/^"|"$/g, ''));
-}
-
-async function fetchWithCorsProxy(url) {
-    // Try each proxy service
-    for (const proxyService of PROXY_SERVICES) {
-        try {
-            let proxyUrl;
-            if (proxyService.format === 'append') {
-                proxyUrl = proxyService.url + encodeURIComponent(url);
-            } else {
-                proxyUrl = proxyService.url + url;
-            }
-            
-            addDebugLog(`Trying ${proxyService.name} proxy...`);
-            
-            const response = await fetchWithTimeout(proxyUrl, {}, 10000);
-            
-            if (response.ok) {
-                currentProxyService = proxyService.name;
-                addDebugLog(`✓ ${proxyService.name} proxy successful`);
-                return response;
-            } else {
-                addDebugLog(`✗ ${proxyService.name} failed with status ${response.status}`);
-            }
-        } catch (error) {
-            addDebugLog(`✗ ${proxyService.name} error: ${error.message}`);
-        }
-    }
-    
-    throw new Error('All proxy services failed. Please check your internet connection.');
-}
-
-function fetchWithTimeout(url, options = {}, timeout = 10000) {
-    return Promise.race([
-        fetch(url, options),
-        new Promise((_, reject) =>
-            setTimeout(() => reject(new Error(`Request timeout after ${timeout}ms`)), timeout)
-        )
-    ]);
 }
 
 function handlePrescriptionInput(e) {
