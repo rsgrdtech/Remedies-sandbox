@@ -592,10 +592,11 @@ Loading remedies database...
 <thead>
 <tr>
 <th data-sort="name">Remedy Name <span class="sort-indicator">↕</span></th>
+<th data-sort="potency">Potency</th>
 <th data-sort="number">Remedy Number</th>
 <th data-sort="box">Box Number</th>
 <th data-sort="section">Section</th>
-<th data-sort="potency">Potency</th>
+
 <th data-sort="type">Type</th>
 <th data-sort="available">Available</th>
 </tr>
@@ -1515,10 +1516,11 @@ function displayRemediesTable(remedies) {
 
         row.innerHTML = `
             <td>${remedy['Remedy Name'] || 'N/A'}</td>
-            <td>${remedy['Remedy Number'] || 'N/A'}</td>
+<td>${remedy['Potency'] || 'N/A'}</td>            
+<td>${remedy['Remedy Number'] || 'N/A'}</td>
             <td>${remedy['BOX Number'] || 'N/A'}</td>
             <td>${remedy['Section'] || 'N/A'}</td>
-            <td>${remedy['Potency'] || 'N/A'}</td>
+            
             <td>${remedy['Type'] || 'N/A'}</td>
             <td><span style="color: ${isAvailable ? 'green' : 'red'}">${remedy['Available'] || 'No'}</span></td>
         `;
