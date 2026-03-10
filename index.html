@@ -156,69 +156,6 @@ padding: 5px 10px;
 font-size: 12px;
 }
 
-/* Toggle Switch Styles */
-.toggle-container {
-display: flex;
-align-items: center;
-gap: 10px;
-margin-bottom: 10px;
-font-size: 14px;
-}
-
-.toggle-switch {
-position: relative;
-display: inline-block;
-width: 50px;
-height: 24px;
-}
-
-.toggle-switch input {
-opacity: 0;
-width: 0;
-height: 0;
-}
-
-.toggle-slider {
-position: absolute;
-cursor: pointer;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background-color: #ccc;
-transition: .4s;
-border-radius: 24px;
-}
-
-.toggle-slider:before {
-position: absolute;
-content: "";
-height: 16px;
-width: 16px;
-left: 4px;
-bottom: 4px;
-background-color: white;
-transition: .4s;
-border-radius: 50%;
-}
-
-input:checked + .toggle-slider {
-background-color: var(--primary);
-}
-
-input:checked + .toggle-slider:before {
-transform: translateX(26px);
-}
-
-.json-label {
-color: var(--primary);
-font-weight: 500;
-}
-
-.csv-label {
-color: #666;
-}
-
 /* Remedies Results Container */
 .remedies-results-container {
 display: flex;
@@ -563,22 +500,6 @@ width: calc(100% - 15px);
 <p>Homeopathic Practice Management</p>
 </header>
 
-<!-- Data Source Toggle -->
-<div class="card">
-<div class="toggle-container">
-<span class="csv-label">CSV</span>
-<label class="toggle-switch">
-<input type="checkbox" id="jsonToggle">
-<span class="toggle-slider"></span>
-</label>
-<span class="json-label">JSON</span>
-<span style="margin-left: 8px;">Use JSON Endpoint</span>
-</div>
-<div id="dataSourceInfo" class="status-message status-info">
-Currently using CSV endpoint
-</div>
-</div>
-
 <!-- Remedies Search Section -->
 <div class="card search-section">
 <h2>Remedies Search</h2>
@@ -822,39 +743,22 @@ Loading remedies database...
 
 <script>
 // Configuration
-const DEFAULT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/11aZgt8hafBHfu0ZHeuyQH_MS09791YHXy_r-7LWc8KM/edit?usp=sharing';
+const DEFAULT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTKnCNTL2WzTz9aOp-RrjlK_uO3rV9SlKbng2BQ5KKyCsPjTO0CAij58lr9JbAi-c3d0KBBa-XYUJZI/pubhtml?gid=369787331&single=true';
 const MATERIA_MEDICA_BASE_URL = 'https://www.materiamedica.info/en/materia-medica/john-henry-clarke/';
 const STORAGE_KEY = 'homeopathic_patient_records';
 
-// Free CORS Proxy Services (will try in order)
+// CORS Proxy Services
 const PROXY_SERVICES = [
-    { 
-        name: 'allorigins',
-        url: 'https://api.allorigins.win/raw?url=',
-        format: 'append'
-    },
     { 
         name: 'corsproxy',
         url: 'https://corsproxy.io/?',
         format: 'prepend'
     },
     { 
-        name: 'cors-anywhere',
-        url: 'https://cors-anywhere.herokuapp.com/',
-        format: 'prepend'
-    },
-    { 
-        name: 'thingproxy',
-        url: 'https://thingproxy.freeboard.io/fetch/',
-        format: 'prepend'
+        name: 'allorigins',
+        url: 'https://api.allorigins.win/raw?url=',
+        format: 'append'
     }
-];
-
-// Alternative Google endpoints to try
-const GOOGLE_ENDPOINTS = [
-    { name: 'gviz-csv', url: '/gviz/tq?tqx=out:csv&sheet=' },
-    { name: 'gviz-json', url: '/gviz/tq?tqx=out:json&sheet=' },
-    { name: 'export-csv', url: '/export?format=csv&gid=0&sheet=' }
 ];
 
 // State
@@ -865,12 +769,9 @@ let addedRemedies = new Set();
 let debugInfo = '';
 let currentSortColumn = 'name';
 let currentSortDirection = 'asc';
-let useJsonEndpoint = false;
 let currentProxyService = null;
 
 // DOM Elements
-const jsonToggle = document.getElementById('jsonToggle');
-const dataSourceInfo = document.getElementById('dataSourceInfo');
 const remedySearch = document.getElementById('remedySearch');
 const searchRemediesBtn = document.getElementById('searchRemedies');
 const listAllRemediesBtn = document.getElementById('listAllRemedies');
@@ -958,7 +859,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show remedies pane by default
     showPane('remediesPane');
 
-    // Load remedies database from Google Sheets based on toggle state
+    // Load remedies database from Google Sheets
     loadRemediesData();
 
     // Set up event listeners
@@ -966,18 +867,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupEventListeners() {
-    // Toggle switch listener
-    jsonToggle.addEventListener('change', function() {
-        useJsonEndpoint = this.checked;
-        dataSourceInfo.textContent = useJsonEndpoint ? 
-            'Currently using JSON endpoint' : 'Currently using CSV endpoint';
-        dataSourceInfo.className = useJsonEndpoint ? 
-            'status-message status-info' : 'status-message status-info';
-            
-        addDebugLog(`Data source changed to: ${useJsonEndpoint ? 'JSON' : 'CSV'}`);
-        loadRemediesData(); // Reload data with new endpoint
-    });
-
     // Search buttons
     searchRemediesBtn.addEventListener('click', searchRemedies);
     listAllRemediesBtn.addEventListener('click', listAllRemedies);
@@ -1048,76 +937,18 @@ function setupEventListeners() {
     }
 }
 
-function fetchWithTimeout(url, options = {}, timeout = 10000) {
-    return Promise.race([
-        fetch(url, options),
-        new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Request timeout')), timeout)
-        )
-    ]);
-}
-
-async function fetchWithCorsProxy(url) {
-    // Updated Free CORS Proxy Services
-    const PROXY_SERVICES = [
-        { 
-            name: 'corsproxy',
-            url: 'https://corsproxy.io/?',
-            format: 'prepend'
-        },
-        { 
-            name: 'allorigins',
-            url: 'https://api.allorigins.win/raw?url=',
-            format: 'append'
-        },
-        { 
-            name: 'cors-anywhere',
-            url: 'https://cors-anywhere.herokuapp.com/',
-            format: 'prepend'
-        },
-        { 
-            name: 'cors-proxy',
-            url: 'https://cors-proxy.htmldriven.com/?url=',
-            format: 'append'
-        }
-    ];
-
-    // Try each proxy service
-    for (const proxyService of PROXY_SERVICES) {
-        try {
-            let proxyUrl;
-            if (proxyService.format === 'append') {
-                proxyUrl = proxyService.url + encodeURIComponent(url);
-            } else {
-                proxyUrl = proxyService.url + url;
-            }
-            
-            addDebugLog(`Trying ${proxyService.name} proxy...`);
-            
-            const response = await fetchWithTimeout(proxyUrl, {}, 10000);
-            
-            if (response.ok) {
-                currentProxyService = proxyService.name;
-                addDebugLog(`✓ ${proxyService.name} proxy successful`);
-                return response;
-            } else {
-                addDebugLog(`✗ ${proxyService.name} failed with status ${response.status}`);
-            }
-        } catch (error) {
-            addDebugLog(`✗ ${proxyService.name} error: ${error.message}`);
-        }
-    }
+// Extract information from published Google Sheets URL
+function extractSheetInfo(url) {
+    // Extract the key from published URL format
+    const match = url.match(/\/d\/e\/([^\/]+)/);
+    const key = match ? match[1] : '2PACX-1vTKnCNTL2WzTz9aOp-RRjlK_uO3rV9SlKbng2BQ5KKyCsPjTO0CAij58lr9JbAi-c3d0KBBa-XYUJZI';
     
-    throw new Error('All proxy services failed. Please check your internet connection.');
-}
-
-function fetchWithTimeout(url, options = {}, timeout = 10000) {
-    return Promise.race([
-        fetch(url, options),
-        new Promise((_, reject) =>
-            setTimeout(() => reject(new Error(`Request timeout after ${timeout}ms`)), timeout)
-        )
-    ]);
+    // Extract gid from URL parameters
+    const gidMatch = url.match(/[?&]gid=(\d+)/);
+    const gid = gidMatch ? gidMatch[1] : '369787331';
+    
+    addDebugLog(`Extracted key: ${key.substring(0, 20)}..., gid: ${gid}`);
+    return { key, gid };
 }
 
 async function loadRemediesData() {
@@ -1130,40 +961,50 @@ async function loadRemediesData() {
         remediesData = [];
         currentProxyService = null;
 
-        const sheetId = extractSheetId(currentSheetUrl);
-        const sheetName = 'Sheet1';
-
-        // Construct the target URL
-        const targetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:${useJsonEndpoint ? 'json' : 'csv'}&sheet=${sheetName}`;
+        const { key, gid } = extractSheetInfo(currentSheetUrl);
         
-        addDebugLog(`Target URL: ${targetUrl}`);
-        addDebugLog(`Using ${useJsonEndpoint ? 'JSON' : 'CSV'} format`);
+        // Published sheets endpoints
+        const endpoints = [
+            `https://docs.google.com/spreadsheets/d/e/${key}/pub?gid=${gid}&single=true&output=csv`,
+            `https://docs.google.com/spreadsheets/d/e/${key}/pub?gid=${gid}&single=true&output=tsv`,
+        ];
 
-        const response = await fetchWithCorsProxy(targetUrl);
+        addDebugLog(`Trying published sheet endpoints for key: ${key.substring(0, 20)}...`);
 
-        if (!response.ok) {
-            throw new Error(`Failed to fetch data: ${response.status}`);
+        let response = null;
+        let usedEndpoint = '';
+        
+        // Try each endpoint
+        for (const endpoint of endpoints) {
+            try {
+                addDebugLog(`Trying endpoint: ${endpoint.substring(0, 80)}...`);
+                response = await fetchWithCorsProxy(endpoint);
+                
+                if (response.ok) {
+                    usedEndpoint = endpoint;
+                    addDebugLog(`✓ Endpoint successful: ${endpoint.substring(0, 50)}`);
+                    break;
+                }
+            } catch (error) {
+                addDebugLog(`Endpoint failed: ${error.message}`);
+            }
         }
 
-        addDebugLog(`✓ Successfully connected via ${currentProxyService ? currentProxyService + ' proxy' : 'direct endpoint'}`);
-        addDebugLog(`Response status: ${response.status}, OK: ${response.ok}`);
+        if (!response || !response.ok) {
+            throw new Error('All endpoints failed');
+        }
 
         const data = await response.text();
         addDebugLog(`Raw response received, length: ${data.length} characters`);
-
-        if (useJsonEndpoint) {
-            remediesData = parseJsonData(data);
-            addDebugLog(`Parsed ${remediesData.length} remedies from JSON response`);
-        } else {
-            remediesData = parseCSVData(data);
-            addDebugLog(`Parsed ${remediesData.length} remedies from CSV response`);
-        }
+        
+        remediesData = parseCSVData(data);
+        addDebugLog(`Parsed ${remediesData.length} remedies from CSV/TSV`);
 
         if (remediesData.length === 0) {
             throw new Error('No data could be parsed from the response');
         }
 
-        remedyStatus.textContent = `Loaded ${remediesData.length} remedies using ${useJsonEndpoint ? 'JSON' : 'CSV'} ${currentProxyService ? 'via ' + currentProxyService : 'directly'}`;
+        remedyStatus.textContent = `Loaded ${remediesData.length} remedies from Google Sheets`;
         remedyStatus.className = 'status-message status-success';
         addDebugLog('✓ Google Sheets data loaded successfully');
 
@@ -1179,60 +1020,6 @@ async function loadRemediesData() {
     }
 }
 
-function parseJsonData(jsonText) {
-    addDebugLog('Parsing JSON data');
-    try {
-        // Google Visualization API returns JSONP-like format, extract the JSON part
-        const startIndex = jsonText.indexOf('{');
-        const endIndex = jsonText.lastIndexOf('}') + 1;
-        
-        if (startIndex === -1 || endIndex === 0) {
-            throw new Error('No JSON data found in response');
-        }
-        
-        const jsonStr = jsonText.substring(startIndex, endIndex);
-        addDebugLog(`Extracted JSON length: ${jsonStr.length}`);
-        
-        const data = JSON.parse(jsonStr);
-        
-        addDebugLog(`JSON structure keys: ${Object.keys(data)}`);
-        
-        if (!data.table) {
-            throw new Error('No table data found in JSON response');
-        }
-        
-        const headers = data.table.cols.map(col => col.label);
-        const rows = data.table.rows || [];
-        
-        addDebugLog(`JSON headers: ${headers.join(', ')}`);
-        addDebugLog(`JSON rows count: ${rows.length}`);
-        
-        const dataArray = [];
-        
-        rows.forEach((row, index) => {
-            const item = {};
-            headers.forEach((header, colIndex) => {
-                if (row.c && row.c[colIndex]) {
-                    item[header] = row.c[colIndex].v || '';
-                } else {
-                    item[header] = '';
-                }
-            });
-            
-            if (item['Remedy Name'] && item['Remedy Name'].trim()) {
-                dataArray.push(item);
-            }
-        });
-        
-        addDebugLog(`Parsed ${dataArray.length} valid remedies from JSON`);
-        return dataArray;
-    } catch (parseError) {
-        addDebugLog(`JSON parsing error: ${parseError.message}`);
-        addDebugLog(`JSON response sample: ${jsonText.substring(0, 200)}...`);
-        return [];
-    }
-}
-
 function parseCSVData(csvText) {
     addDebugLog('Parsing CSV data');
 
@@ -1242,7 +1029,6 @@ function parseCSVData(csvText) {
         return [];
     }
 
-    // Handle CSV parsing with proper quote handling
     const headers = parseCSVLine(lines[0]);
     const dataArray = [];
 
@@ -1290,14 +1076,44 @@ function parseCSVLine(line) {
     return result.map(field => field.replace(/^"|"$/g, ''));
 }
 
-function extractSheetId(url) {
-    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    const sheetId = match ? match[1] : '11aZgt8hafBHfu0ZHeuyQH_MS09791YHXy_r-7LWc8KM';
-    addDebugLog(`Extracted Sheet ID: ${sheetId} from URL: ${url}`);
-    return sheetId;
+async function fetchWithCorsProxy(url) {
+    // Try each proxy service
+    for (const proxyService of PROXY_SERVICES) {
+        try {
+            let proxyUrl;
+            if (proxyService.format === 'append') {
+                proxyUrl = proxyService.url + encodeURIComponent(url);
+            } else {
+                proxyUrl = proxyService.url + url;
+            }
+            
+            addDebugLog(`Trying ${proxyService.name} proxy...`);
+            
+            const response = await fetchWithTimeout(proxyUrl, {}, 10000);
+            
+            if (response.ok) {
+                currentProxyService = proxyService.name;
+                addDebugLog(`✓ ${proxyService.name} proxy successful`);
+                return response;
+            } else {
+                addDebugLog(`✗ ${proxyService.name} failed with status ${response.status}`);
+            }
+        } catch (error) {
+            addDebugLog(`✗ ${proxyService.name} error: ${error.message}`);
+        }
+    }
+    
+    throw new Error('All proxy services failed. Please check your internet connection.');
 }
 
-// ... (All other functions remain exactly the same as previous version)
+function fetchWithTimeout(url, options = {}, timeout = 10000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error(`Request timeout after ${timeout}ms`)), timeout)
+        )
+    ]);
+}
 
 function handlePrescriptionInput(e) {
     const text = e.target.value;
