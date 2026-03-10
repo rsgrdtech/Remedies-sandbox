@@ -1242,7 +1242,7 @@ function addDebugLog(message) {
     console.log(`[DEBUG] ${message}`);
 }
 
-function searchRemedies() {
+/* function searchRemedies() {
     const searchTerm = remedySearch.value.trim();
 
     if (!searchTerm) {
@@ -1286,7 +1286,7 @@ function searchRemedies() {
             r['Remedy Name'] === remedy['Remedy Name'] &&
             r['Potency'] === remedy['Potency']
         )
-    );
+    ); 
 
     remediesPaneTitle.textContent = 'Remedies Search Results';
     remediesPaneSubtitle.textContent = `Found ${results.length} remedies starting with "${searchTerm}"`;
@@ -1294,7 +1294,87 @@ function searchRemedies() {
 
     displayRemediesCards(results);
     allRemediesTable.style.display = 'none';
+} */
+function searchRemedies() {
+    const searchTerm = remedySearch.value.trim();
+
+    if (!searchTerm) {
+        remedyStatus.textContent = 'Please enter remedy names/potencies';
+        remedyStatus.className = 'status-message status-error';
+        return;
+    }
+
+    addDebugLog(`Searching remedies for: "${searchTerm}"`);
+
+    // Show remedies pane
+    showPane('remediesPane');
+
+    // Check if we have any remedies data
+    if (remediesData.length === 0) {
+        remedyStatus.textContent = 'No remedies data available.';
+        remedyStatus.className = 'status-message status-error';
+        addDebugLog('Cannot search - no remedies data loaded');
+        return;
+    }
+
+    const terms = searchTerm.split(',').map(t => t.trim()).filter(t => t);
+    let results = [];
+
+    terms.forEach(term => {
+        if (!term) return;
+
+        let termResults = [];
+
+        // Check if term contains potency pattern (e.g., "Acon30", "Acon 30", "Acon200")
+        const potencyMatch = term.match(/^([a-zA-Z]+)\s*(\d+[cCmMkK]?)$/i);
+        
+        if (potencyMatch) {
+            // Pattern like "Acon30" or "Acon 30" found
+            const remedyNamePart = potencyMatch[1].toLowerCase();
+            const potencyPart = potencyMatch[2].toUpperCase();
+            
+            addDebugLog(`Searching for remedy pattern: name="${remedyNamePart}", potency="${potencyPart}"`);
+            
+            // Search for remedies matching both name and potency
+            termResults = remediesData.filter(remedy => {
+                const name = (remedy['Remedy Name'] || '').toLowerCase();
+                const potency = (remedy['Potency'] || '').toUpperCase();
+                
+                return name.startsWith(remedyNamePart) && potency.includes(potencyPart);
+            });
+        } else {
+            // Regular prefix search (original behavior)
+            addDebugLog(`Performing prefix search for: "${term}"`);
+            
+            termResults = remediesData.filter(remedy => {
+                const name = (remedy['Remedy Name'] || '').toLowerCase();
+                const potency = (remedy['Potency'] || '').toLowerCase();
+                
+                // Search in both name and potency fields
+                return name.startsWith(term.toLowerCase()) || 
+                       potency.startsWith(term.toLowerCase());
+            });
+        }
+
+        results = [...results, ...termResults];
+    });
+
+    // Remove duplicates
+    results = results.filter((remedy, index, self) =>
+        index === self.findIndex(r =>
+            r['Remedy Name'] === remedy['Remedy Name'] &&
+            r['Potency'] === remedy['Potency']
+        )
+    );
+
+    remediesPaneTitle.textContent = 'Remedies Search Results';
+    remediesPaneSubtitle.textContent = `Found ${results.length} remedies for "${searchTerm}"`;
+    addDebugLog(`Found ${results.length} unique remedies for search terms`);
+
+    displayRemediesCards(results);
+    allRemediesTable.style.display = 'none';
 }
+
 
 function listAllRemedies() {
     addDebugLog('Listing all remedies alphabetically');
