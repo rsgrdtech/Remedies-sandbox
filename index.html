@@ -1058,38 +1058,31 @@ function fetchWithTimeout(url, options = {}, timeout = 10000) {
 }
 
 async function fetchWithCorsProxy(url) {
-    // First, try direct Google endpoints without proxy
-    const sheetId = extractSheetId(currentSheetUrl);
-    const sheetName = 'Sheet1';
-    
-    // Try Google's own endpoints first
-    const googleUrls = [
-        `https://docs.google.com/spreadsheets/d/${sheetId}${useJsonEndpoint ? '/gviz/tq?tqx=out:json' : '/gviz/tq?tqx=out:csv'}&sheet=${sheetName}`,
-        `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=${useJsonEndpoint ? 'json' : 'csv'}&gid=0`
-    ];
-    
-    for (const googleUrl of googleUrls) {
-        try {
-            addDebugLog(`Trying direct Google endpoint: ${googleUrl.substring(0, 80)}...`);
-            const response = await fetchWithTimeout(googleUrl, { mode: 'no-cors' });
-            
-            // Even if request goes through, we can't read response due to CORS
-            addDebugLog('Direct endpoint request sent but CORS blocks response reading');
-            
-            // Try to read response text anyway (will likely fail)
-            try {
-                const text = await response.text();
-                addDebugLog(`✓ Direct access successful!`);
-                return response;
-            } catch (readError) {
-                addDebugLog(`Direct access blocked by CORS: ${readError.message}`);
-            }
-        } catch (error) {
-            addDebugLog(`Direct endpoint failed: ${error.message}`);
+    // Updated Free CORS Proxy Services
+    const PROXY_SERVICES = [
+        { 
+            name: 'corsproxy',
+            url: 'https://corsproxy.io/?',
+            format: 'prepend'
+        },
+        { 
+            name: 'allorigins',
+            url: 'https://api.allorigins.win/raw?url=',
+            format: 'append'
+        },
+        { 
+            name: 'cors-anywhere',
+            url: 'https://cors-anywhere.herokuapp.com/',
+            format: 'prepend'
+        },
+        { 
+            name: 'cors-proxy',
+            url: 'https://cors-proxy.htmldriven.com/?url=',
+            format: 'append'
         }
-    }
-    
-    // If direct access fails, try proxy services
+    ];
+
+    // Try each proxy service
     for (const proxyService of PROXY_SERVICES) {
         try {
             let proxyUrl;
@@ -1099,9 +1092,9 @@ async function fetchWithCorsProxy(url) {
                 proxyUrl = proxyService.url + url;
             }
             
-            addDebugLog(`Trying ${proxyService.name} proxy: ${proxyUrl.substring(0, 80)}...`);
+            addDebugLog(`Trying ${proxyService.name} proxy...`);
             
-            const response = await fetchWithTimeout(proxyUrl, {}, 15000);
+            const response = await fetchWithTimeout(proxyUrl, {}, 10000);
             
             if (response.ok) {
                 currentProxyService = proxyService.name;
@@ -1116,6 +1109,15 @@ async function fetchWithCorsProxy(url) {
     }
     
     throw new Error('All proxy services failed. Please check your internet connection.');
+}
+
+function fetchWithTimeout(url, options = {}, timeout = 10000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error(`Request timeout after ${timeout}ms`)), timeout)
+        )
+    ]);
 }
 
 async function loadRemediesData() {
