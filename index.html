@@ -1375,7 +1375,7 @@ function addDebugLog(message) {
     allRemediesTable.style.display = 'none';
 }
 */
-function searchRemedies() {
+/* function searchRemedies() {
     const searchTerm = remedySearch.value.trim();
 
     if (!searchTerm) {
@@ -1538,6 +1538,149 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     setupTypeAheadSearch(); // Add this line
 });
+
+*/
+function searchRemedies() {
+    const searchTerm = remedySearch.value.trim();
+
+    if (!searchTerm) {
+        // Clear results when search is empty
+        remediesPaneTitle.textContent = 'Remedies';
+        remediesPaneSubtitle.textContent = 'Search for remedies or click "List All Remedies" to begin';
+        remediesResults.innerHTML = '';
+        allRemediesTable.style.display = 'none';
+        return;
+    }
+
+    addDebugLog(`Type-ahead searching remedies for: "${searchTerm}"`);
+
+    // Show remedies pane
+    showPane('remediesPane');
+
+    // Check if we have any remedies data
+    if (remediesData.length === 0) {
+        remedyStatus.textContent = 'No remedies data available.';
+        remedyStatus.className = 'status-message status-error';
+        addDebugLog('Cannot search - no remedies data loaded');
+        return;
+    }
+
+    const terms = searchTerm.split(',').map(t => t.trim()).filter(t => t);
+    let results = [];
+
+    terms.forEach(term => {
+        if (!term) return;
+
+        let termResults = [];
+
+        // Check if term contains potency pattern (e.g., "Acon30", "Acon 30", "Acon200")
+        const potencyMatch = term.match(/^([a-zA-Z]+)\s*(\d+[cCmMkK]?)$/i);
+        
+        if (potencyMatch) {
+            // Pattern like "Acon30" or "Acon 30" found
+            const remedyNamePart = potencyMatch[1].toLowerCase();
+            const potencyPart = potencyMatch[2].toUpperCase();
+            
+            addDebugLog(`Type-ahead searching for remedy pattern: name="${remedyNamePart}", potency="${potencyPart}"`);
+            
+            // Search for remedies matching both name and potency
+            termResults = remediesData.filter(remedy => {
+                const name = (remedy['Remedy Name'] || '').toLowerCase();
+                const potency = (remedy['Potency'] || '').toUpperCase();
+                
+                return name.startsWith(remedyNamePart) && potency.includes(potencyPart);
+            });
+        } else {
+            // Regular prefix search - only from start of remedy name
+            addDebugLog(`Type-ahead performing prefix search for: "${term}"`);
+            
+            termResults = remediesData.filter(remedy => {
+                const name = (remedy['Remedy Name'] || '').toLowerCase();
+                const potency = (remedy['Potency'] || '').toLowerCase();
+                const remedyNumber = (remedy['Remedy Number'] || '').toString();
+                const boxNumber = (remedy['BOX Number'] || '').toString();
+                
+                // Only search from the start of fields (not mid-string)
+                return name.startsWith(term.toLowerCase()) || 
+                       potency.startsWith(term.toLowerCase()) ||
+                       remedyNumber.startsWith(term) ||
+                       boxNumber.startsWith(term);
+            });
+        }
+
+        results = [...results, ...termResults];
+    });
+
+    // Remove duplicates
+    results = results.filter((remedy, index, self) =>
+        index === self.findIndex(r =>
+            r['Remedy Name'] === remedy['Remedy Name'] &&
+            r['Potency'] === remedy['Potency']
+        )
+    );
+
+    // Sort results by relevance (exact prefix matches first)
+    if (terms.length === 1) {
+        results.sort((a, b) => {
+            const nameA = a['Remedy Name'] || '';
+            const nameB = b['Remedy Name'] || '';
+            const termLower = terms[0].toLowerCase();
+            
+            // Prioritize exact name prefix matches first
+            const aNameStartsWith = nameA.toLowerCase().startsWith(termLower);
+            const bNameStartsWith = nameB.toLowerCase().startsWith(termLower);
+            
+            if (aNameStartsWith && !bNameStartsWith) return -1;
+            if (!aNameStartsWith && bNameStartsWith) return 1;
+            
+            // Then prioritize potency matches
+            const potencyA = a['Potency'] || '';
+            const potencyB = b['Potency'] || '';
+            const aPotencyStartsWith = potencyA.toLowerCase().startsWith(termLower);
+            const bPotencyStartsWith = potencyB.toLowerCase().startsWith(termLower);
+            
+            if (aPotencyStartsWith && !bPotencyStartsWith) return -1;
+            if (!aPotencyStartsWith && bPotencyStartsWith) return 1;
+            
+            // Finally sort alphabetically
+            return nameA.localeCompare(nameB);
+        });
+    }
+
+    remediesPaneTitle.textContent = 'Remedies Search Results';
+    remediesPaneSubtitle.textContent = `Found ${results.length} remedies starting with "${searchTerm}"`;
+    addDebugLog(`Found ${results.length} unique remedies starting with search terms`);
+
+    if (results.length > 0) {
+        displayRemediesCards(results);
+    } else {
+        remediesResults.innerHTML = '<p>No remedies found starting with this term. Try a different search.</p>';
+    }
+    allRemediesTable.style.display = 'none';
+}
+
+// Set up real-time type-ahead search
+function setupTypeAheadSearch() {
+    let searchTimeout;
+    
+    remedySearch.addEventListener('input', () => {
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Set new timeout (300ms debounce)
+        searchTimeout = setTimeout(() => {
+            searchRemedies();
+        }, 300);
+    });
+    
+    // Also allow Enter key for immediate search
+    remedySearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            clearTimeout(searchTimeout);
+            searchRemedies();
+        }
+    });
+}
 
 
 function listAllRemedies() {
