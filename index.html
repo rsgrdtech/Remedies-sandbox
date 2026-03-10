@@ -1552,7 +1552,7 @@ function searchRemedies() {
         return;
     }
 
-    addDebugLog(`Searching remedies for: "${searchTerm}"`);
+    addDebugLog(`Type-ahead searching remedies for: "${searchTerm}"`);
 
     // Show remedies pane
     showPane('remediesPane');
@@ -1581,7 +1581,7 @@ function searchRemedies() {
             const remedyNamePart = potencyMatch[1].toLowerCase();
             const potencyPart = potencyMatch[2].toUpperCase();
             
-            addDebugLog(`Searching for remedy pattern: name="${remedyNamePart}", potency="${potencyPart}"`);
+            addDebugLog(`Type-ahead searching for remedy pattern: name="${remedyNamePart}", potency="${potencyPart}"`);
             
             // Search for remedies matching both name and potency
             termResults = remediesData.filter(remedy => {
@@ -1591,8 +1591,8 @@ function searchRemedies() {
                 return name.startsWith(remedyNamePart) && potency.includes(potencyPart);
             });
         } else {
-            // Regular prefix search - only from start of remedy name
-            addDebugLog(`Performing prefix search for: "${term}"`);
+            // Regular prefix search - ONLY FROM START of fields
+            addDebugLog(`Type-ahead performing prefix search for: "${term}"`);
             
             termResults = remediesData.filter(remedy => {
                 const name = (remedy['Remedy Name'] || '').toLowerCase();
@@ -1600,12 +1600,12 @@ function searchRemedies() {
                 const remedyNumber = (remedy['Remedy Number'] || '').toString();
                 const boxNumber = (remedy['BOX Number'] || '').toString();
                 
-                // Only search from the start of fields (not mid-string)
+                // CHANGE: Use startsWith() instead of includes() to prevent mid-string matching
                 return name.startsWith(term.toLowerCase()) || 
                        potency.startsWith(term.toLowerCase()) ||
                        remedyNumber.startsWith(term) ||
                        boxNumber.startsWith(term);
-            });
+            }).slice(0, 50); // Limit results for type-ahead
         }
 
         results = [...results, ...termResults];
@@ -1619,32 +1619,39 @@ function searchRemedies() {
         )
     );
 
-    // Sort results by relevance (exact prefix matches first)
+    // If single term search, show more relevant results first
     if (terms.length === 1) {
         results.sort((a, b) => {
             const nameA = a['Remedy Name'] || '';
             const nameB = b['Remedy Name'] || '';
             const termLower = terms[0].toLowerCase();
             
-            // Prioritize exact name prefix matches first
-            const aNameStartsWith = nameA.toLowerCase().startsWith(termLower);
-            const bNameStartsWith = nameB.toLowerCase().startsWith(termLower);
-            
-            if (aNameStartsWith && !bNameStartsWith) return -1;
-            if (!aNameStartsWith && bNameStartsWith) return 1;
+            // Prioritize exact matches at the beginning (already using startsWith)
+            if (nameA.toLowerCase().startsWith(termLower) && !nameB.toLowerCase().startsWith(termLower)) {
+                return -1;
+            }
+            if (!nameA.toLowerCase().startsWith(termLower) && nameB.toLowerCase().startsWith(termLower)) {
+                return 1;
+            }
             
             // Then prioritize potency matches
             const potencyA = a['Potency'] || '';
             const potencyB = b['Potency'] || '';
+            // CHANGE: Use startsWith for potency too
             const aPotencyStartsWith = potencyA.toLowerCase().startsWith(termLower);
             const bPotencyStartsWith = potencyB.toLowerCase().startsWith(termLower);
             
             if (aPotencyStartsWith && !bPotencyStartsWith) return -1;
             if (!aPotencyStartsWith && bPotencyStartsWith) return 1;
             
-            // Finally sort alphabetically
             return nameA.localeCompare(nameB);
         });
+    }
+
+    // Limit results for better performance in type-ahead
+    if (results.length > 100) {
+        results = results.slice(0, 100);
+        addDebugLog(`Limited results to 100 for type-ahead display`);
     }
 
     remediesPaneTitle.textContent = 'Remedies Search Results';
@@ -1659,39 +1666,31 @@ function searchRemedies() {
     allRemediesTable.style.display = 'none';
 }
 
-// Proper type-ahead setup
+// WORKING Type-ahead setup (keep this as-is since it works)
 function setupTypeAheadSearch() {
     let searchTimeout;
     
-    // Remove any existing event listeners first
-    remedySearch.removeEventListener('input', handleTypeAheadInput);
-    remedySearch.removeEventListener('keypress', handleTypeAheadKeypress);
-    
-    function handleTypeAheadInput() {
+    remedySearch.addEventListener('input', () => {
         // Clear previous timeout
         clearTimeout(searchTimeout);
         
-        // Set new timeout (500ms debounce)
+        // Set new timeout (300ms debounce)
         searchTimeout = setTimeout(() => {
             searchRemedies();
-        }, 500);
-    }
+        }, 300);
+    });
     
-    function handleTypeAheadKeypress(e) {
+    // Also allow Enter key for immediate search
+    remedySearch.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            // Clear timeout and search immediately on Enter
             clearTimeout(searchTimeout);
             searchRemedies();
         }
-    }
-    
-    // Add event listeners
-    remedySearch.addEventListener('input', handleTypeAheadInput);
-    remedySearch.addEventListener('keypress', handleTypeAheadKeypress);
+    });
 }
 
-// Update the initialize function to properly set up type-ahead
-function initializeApp() {
+// Update the initialization to set up type-ahead
+document.addEventListener('DOMContentLoaded', () => {
     // Set today's date as default visit date
     const today = getTodayDate();
     if (visitDate) visitDate.value = today;
@@ -1699,26 +1698,12 @@ function initializeApp() {
     // Show remedies pane by default
     showPane('remediesPane');
 
-    // Load remedies database from Google Sheets
+    // Load remedies database from Google Sheets using the proven method
     fetchGoogleSheetData();
 
-    // Set up event listeners
+    // Set up event listeners including type-ahead
     setupEventListeners();
-    
-    // Set up type-ahead search AFTER remedies data is loaded
-    setTimeout(() => {
-        setupTypeAheadSearch();
-        addDebugLog('Type-ahead search initialized');
-    }, 1000); // Small delay to ensure DOM is ready
-}
-
-// Replace the DOMContentLoaded event listener
-document.addEventListener('DOMContentLoaded', initializeApp);
-
-// Also update the search button to work with type-ahead
-searchRemediesBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    searchRemedies();
+    setupTypeAheadSearch(); // This line should work!
 });
 
 
