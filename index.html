@@ -1566,7 +1566,7 @@ function searchRemedies() {
 
     const terms = searchTerm.split(',').map(t => t.trim()).filter(t => t);
     let results = [];
-
+/*
     terms.forEach(term => {
         if (!term) return;
 
@@ -1609,7 +1609,66 @@ function searchRemedies() {
 
         results = [...results, ...termResults];
     });
+*/
+terms.forEach(term => {
+    if (!term) return;
 
+    let termResults = [];
+    const termLower = term.toLowerCase();
+
+    // Case 1 — Pure potency search (e.g. "30")
+    if (/^\d+[a-zA-Z]*$/i.test(term)) {
+
+        addDebugLog(`Searching potency only: ${term}`);
+
+        termResults = remediesData.filter(remedy => {
+            const potency = (remedy['Potency'] || '').toLowerCase();
+            return potency.includes(termLower);
+        });
+
+    }
+    
+    // Case 2 — Name + potency like "acon30" or "acon 30"
+    else if (/^[a-zA-Z]+\s*\d+/i.test(term)) {
+
+        const match = term.match(/^([a-zA-Z]+)\s*(\d+)/i);
+
+        if (match) {
+            const namePart = match[1].toLowerCase();
+            const potencyPart = match[2];
+
+            addDebugLog(`Searching name+potency: ${namePart} ${potencyPart}`);
+
+            termResults = remediesData.filter(remedy => {
+                const name = (remedy['Remedy Name'] || '').toLowerCase();
+                const potency = (remedy['Potency'] || '').toLowerCase();
+
+                return name.startsWith(namePart) && potency.includes(potencyPart);
+            });
+        }
+    }
+    
+    // Case 3 — Normal name search
+    else {
+
+        addDebugLog(`Prefix searching name: ${term}`);
+
+        termResults = remediesData.filter(remedy => {
+
+            const name = (remedy['Remedy Name'] || '').toLowerCase();
+            const potency = (remedy['Potency'] || '').toLowerCase();
+            const remedyNumber = (remedy['Remedy Number'] || '').toString();
+            const boxNumber = (remedy['BOX Number'] || '').toString();
+
+            return name.startsWith(termLower) ||
+                   potency.includes(termLower) ||
+                   remedyNumber.startsWith(termLower) ||
+                   boxNumber.startsWith(termLower);
+        });
+    }
+
+    results = [...results, ...termResults];
+});
     // Remove duplicates
     results = results.filter((remedy, index, self) =>
         index === self.findIndex(r =>
