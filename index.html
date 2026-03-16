@@ -6,524 +6,7 @@
 <title>Freemont Gurdwara RM - Homeopathic Practice</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-/* <style>
-:root {
---primary: #3498db;
---secondary: #2c3e50;
---success: #27ae60;
---warning: #f39c12;
---danger: #e74c3c;
---light: #ecf0f1;
---dark: #34495e;
-}
 
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: 'Roboto', sans-serif;
-}
-
-body {
-background-color: #f5f7fa;
-color: #333;
-line-height: 1.6;
-height: 100vh;
-overflow: hidden;
-}
-
-.container {
-display: flex;
-height: 100vh;
-}
-
-/* Left Navigation Pane */
-.left-pane {
-width: 320px;
-background: white;
-border-right: 1px solid #ddd;
-padding: 15px;
-overflow-y: auto;
-}
-
-/* Right Content Pane */
-.right-pane {
-flex: 1;
-padding: 20px;
-overflow-y: auto;
-display: none;
-}
-
-/* Active pane styling */
-.pane-active {
-display: block;
-}
-/* 
-header {
-background: linear-gradient(135deg, var(--secondary), var(--dark));
-color: white;
-padding: 15px;
-border-radius: 8px;
-margin-bottom: 15px;
-}
-
-h1, h2, h3 {
-margin-bottom: 15px;
-}
-*/ 
-/* Compact Header */
-header {
-background: linear-gradient(135deg, var(--secondary), var(--dark));
-color: white;
-padding: 8px 14px;
-border-radius: 8px;
-margin-bottom: 10px;
-display: flex;
-align-items: center;
-min-height: 44px;
-}
-
-/* Single line title */
-header h1,
-header h2 {
-font-size: 1.4em;
-font-weight: 700;
-margin: 0;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-}
-
-/* Remove extra lines under header */
-header p,
-header small,
-header div:not(:first-child) {
-display: none;
-}
-
-/* Keep global heading spacing tight */
-h1, h2, h3 {
-margin-bottom: 8px;
-}
-
-.card {
-background: white;
-border-radius: 8px;
-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-padding: 15px;
-margin-bottom: 15px;
-}
-
-.search-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 10px;
-}
-
-.form-group {
-margin-bottom: 10px;
-}
-
-label {
-display: block;
-margin-bottom: 5px;
-font-weight: 500;
-color: var(--dark);
-}
-
-input, select, textarea {
-width: 100%;
-padding: 8px;
-border: 1px solid #ddd;
-border-radius: 5px;
-font-size: 14px;
-}
-
-input:focus, select:focus, textarea:focus {
-outline: none;
-border-color: var(--primary);
-box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
-.required::after {
-content: " *";
-color: var(--danger);
-}
-
-button {
-padding: 8px 15px;
-background-color: var(--primary);
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-transition: background-color 0.3s;
-margin-right: 8px;
-margin-bottom: 8px;
-}
-
-button:hover {
-opacity: 0.9;
-}
-
-.btn-success {
-background-color: var(--success);
-}
-
-.btn-warning {
-background-color: var(--warning);
-}
-
-.btn-danger {
-background-color: var(--danger);
-}
-
-.btn-outline {
-background-color: transparent;
-border: 1px solid var(--primary);
-color: var(--primary);
-}
-
-.btn-small {
-padding: 5px 10px;
-font-size: 12px;
-}
-
-/* Remedies Results Container */
-.remedies-results-container {
-display: flex;
-flex-wrap: wrap;
-gap: 15px;
-margin-bottom: 20px;
-max-height: 500px;
-overflow-y: auto;
-}
-
-/* Remedy Cards */
-.remedy-card {
-width: calc(25% - 15px);
-border: 1px solid #ddd;
-border-radius: 8px;
-padding: 12px;
-background: white;
-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-cursor: pointer;
-transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.remedy-card:hover {
-transform: translateY(-2px);
-box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.remedy-card.available {
-border-left: 4px solid var(--success);
-}
-
-.remedy-card.unavailable {
-border-left: 4px solid var(--danger);
-background-color: #f9f9f9;
-}
-
-.remedy-name {
-font-weight: bold;
-font-size: 1.1em;
-margin-bottom: 8px;
-overflow: hidden;
-white-space: nowrap;
-text-overflow: ellipsis;
-}
-
-.available-remedy {
-color: var(--success);
-}
-
-.unavailable-remedy {
-color: var(--danger);
-}
-
-.remedy-details {
-font-size: 0.85em;
-color: #666;
-line-height: 1.2;
-}
-
-.remedy-detail-row {
-margin-bottom: 3px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-
-.info-link {
-color: var(--primary);
-cursor: pointer;
-font-size: 0.8em;
-text-decoration: underline;
-}
-
-.search-section {
-margin-bottom: 15px;
-}
-
-.search-input-group {
-display: flex;
-gap: 8px;
-margin-bottom: 8px;
-}
-
-.search-input-group input {
-flex: 1;
-}
-
-.patient-form {
-display: none;
-}
-
-.prescription-container {
-position: relative;
-}
-
-.prescription-text {
-height: 120px;
-resize: vertical;
-width: 100%;
-padding: 10px;
-border: 1px solid #ddd;
-border-radius: 5px;
-margin-bottom: 15px;
-}
-
-.autocomplete-suggestions {
-position: absolute;
-background: white;
-border: 1px solid #ddd;
-border-radius: 5px;
-max-height: 200px;
-overflow-y: auto;
-width: 100%;
-z-index: 100;
-box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-display: none;
-}
-
-.suggestion-item {
-padding: 8px 12px;
-cursor: pointer;
-border-bottom: 1px solid #f0f0f0;
-}
-
-.suggestion-item:hover {
-background-color: #f5f5f5;
-}
-
-.suggestion-item:last-child {
-border-bottom: none;
-}
-
-.visit-history {
-max-height: 300px;
-overflow-y: auto;
-margin-top: 15px;
-}
-
-.visit-item {
-border-left: 4px solid var(--primary);
-padding: 10px;
-margin-bottom: 10px;
-background: #f9f9f9;
-}
-
-.details-modal {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background-color: rgba(0, 0, 0, 0.5);
-display: none;
-justify-content: center;
-align-items: center;
-z-index: 1000;
-}
-
-.modal-content {
-background-color: white;
-padding: 20px;
-border-radius: 8px;
-width: 90%;
-max-width: 800px;
-max-height: 90vh;
-overflow-y: auto;
-position: relative;
-}
-
-.close-btn {
-position: absolute;
-top: 15px;
-right: 20px;
-font-size: 24px;
-cursor: pointer;
-color: #888;
-z-index: 10;
-}
-
-.remedy-detail-frame {
-width: 100%;
-height: 500px;
-border: 1px solid #ddd;
-border-radius: 5px;
-margin-top: 15px;
-}
-
-.status-message {
-padding: 8px;
-border-radius: 5px;
-margin-bottom: 10px;
-font-size: 0.9em;
-}
-
-.status-success {
-background-color: #d4edda;
-color: #155724;
-}
-
-.status-error {
-background-color: #f8d7da;
-color: #721c24;
-}
-
-.status-info {
-background-color: #d1ecf1;
-color: #0c5460;
-}
-
-.status-debug {
-background-color: #f8f9fa;
-color: #495057;
-border: 1px solid #dee2e6;
-font-family: monospace;
-font-size: 0.85em;
-max-height: 200px;
-overflow-y: auto;
-white-space: pre-wrap;
-}
-
-.patient-summary {
-background: #e3f2fd;
-padding: 12px;
-border-radius: 8px;
-margin-bottom: 15px;
-}
-
-/* Popup Card */
-.popup-card {
-position: absolute;
-background: white;
-border: 1px solid #ddd;
-border-radius: 8px;
-padding: 15px;
-box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-z-index: 100;
-max-width: 300px;
-display: none;
-flex-direction: column;
-gap: 5px;
-}
-
-.popup-detail-line {
-display: flex;
-justify-content: space-between;
-font-size: 0.9em;
-}
-
-.popup-detail-label {
-font-weight: bold;
-color: var(--dark);
-}
-
-.debug-toggle {
-background: #6c757d;
-color: white;
-border: none;
-padding: 5px 10px;
-border-radius: 3px;
-font-size: 12px;
-cursor: pointer;
-margin-top: 10px;
-}
-
-.action-buttons {
-display: flex;
-gap: 10px;
-margin-bottom: 15px;
-}
-
-.sortable-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 15px;
-}
-
-.sortable-table th {
-background-color: var(--light);
-padding: 10px;
-text-align: left;
-cursor: pointer;
-border-bottom: 2px solid var(--primary);
-}
-
-.sortable-table th:hover {
-background-color: #dde4e9;
-}
-
-.sortable-table td {
-padding: 10px;
-border-bottom: 1px solid #ddd;
-}
-
-.sortable-table tr:hover {
-background-color: #f5f5f5;
-}
-
-.sort-indicator {
-margin-left: 5px;
-font-size: 0.8em;
-}
-
-@media (max-width: 1200px) {
-.remedy-card {
-width: calc(33.33% - 15px);
-}
-}
-
-@media (max-width: 992px) {
-.remedy-card {
-width: calc(50% - 15px);
-}
-}
-
-@media (max-width: 768px) {
-.container {
-flex-direction: column;
-}
-
-.left-pane {
-width: 100%;
-height: 40vh;
-}
-
-.right-pane {
-height: 60vh;
-}
-
-.remedy-card {
-width: calc(100% - 15px);
-}
-}
-</style> */
 <style>
 :root {
 --primary: #3498db;
@@ -535,7 +18,7 @@ width: calc(100% - 15px);
 --dark: #34495e;
 }
 
-* {
+*{
 margin: 0;
 padding: 0;
 box-sizing: border-box;
@@ -707,6 +190,9 @@ display:flex;
 align-items:center;
 justify-content:space-between;
 gap:8px;
+font-size:1.1rem;
+font-weight:900;
+margin-bottom:2px;
 }
 
 .remedy-title{
@@ -715,11 +201,12 @@ flex:1;
 
 .remedy-number{
 font-weight:700;
-font-size:2.15em;
+font-size:1.40em;
 color:#8e24aa;
 }
+
 .remedy-row{
-font-size:0.78em;
+font-size:1.15em;
 display:flex;
 gap:6px;
 flex-wrap:wrap;
@@ -1000,6 +487,9 @@ width: calc(100% - 10px);
 }
 
 }
+#toggleDebug{
+display:none !important;
+}
 </style>
 
 </head>
@@ -1020,7 +510,11 @@ width: calc(100% - 10px);
 <button id="searchRemedies"><i class="fas fa-search"></i></button>
 </div>
 <div class="action-buttons">
-<button id="listAllRemedies" class="btn-small"><i class="fas fa-list"></i> List All Remedies (A-Z)</button>
+<button id="listAllRemedies" class="btn-small">
+<i class="fas fa-list"></i> List All Remedies
+</button>
+
+<span id="remedyCount" class="remedy-count"></span>
 </div>
 <div id="remedyStatus" class="status-message status-info">
 Loading remedies database...
@@ -1032,55 +526,92 @@ Loading remedies database...
 </div>
 
 <!-- Patient Search Section -->
-<div class="card">
-<div class="search-header">
+
+<div class="card patient-search-card">
+
+<div class="search-header patient-search-header">
+
 <h2>Patient Search</h2>
-<button id="newPatient" class="btn-outline"><i class="fas fa-plus"></i> New Patient</button>
+
+<button id="togglePatientSearch" class="mobile-toggle">
+<i class="fas fa-chevron-down"></i>
+</button>
+
+<button id="newPatient" class="btn-outline">
+<i class="fas fa-plus"></i> New Patient
+</button>
+
 </div>
+
+<div id="patientSearchBody">
+
 <div class="search-input-group">
 <input type="tel" id="patientSearch" placeholder="Cell Number: 999-999-9999">
 <button id="searchPatient"><i class="fas fa-search"></i></button>
 </div>
+
 <div id="patientStatus" class="status-message"></div>
+
 </div>
 
+</div> <!-- END Patient Search Card -->
+
+
 <!-- Patient Form (Initially Hidden) -->
-<div class="card patient-form" id="patientForm" style="display: none;">
+
+<div class="card patient-form" id="patientForm" style="display:none;">
+
 <h2>Patient Record</h2>
+
 <div class="form-group">
 <label for="patientFirstName" class="required">First Name</label>
 <input type="text" id="patientFirstName">
 </div>
+
 <div class="form-group">
 <label for="patientLastName" class="required">Last Name</label>
 <input type="text" id="patientLastName">
 </div>
+
 <div class="form-group">
 <label for="patientPhone" class="required">Cell Phone</label>
 <input type="tel" id="patientPhone">
 </div>
+
 <div class="form-group">
 <label for="patientAge" class="required">Age</label>
 <input type="number" id="patientAge" min="0" max="120">
 </div>
+
 <div class="form-group">
 <label for="patientCity">City</label>
 <input type="text" id="patientCity">
 </div>
+
 <div class="form-group">
 <label for="patientAddress">Address</label>
 <input type="text" id="patientAddress">
 </div>
-<button id="updatePatient" class="btn-success"><i class="fas fa-save"></i> Update Patient</button>
+
+<button id="updatePatient" class="btn-success">
+<i class="fas fa-save"></i> Update Patient
+</button>
+
 </div>
 
+
 <!-- Patient Summary (Initially Hidden) -->
-<div class="patient-summary" id="patientSummary" style="display: none;">
+
+<div class="patient-summary" id="patientSummary" style="display:none;">
+
 <h3>Current Patient</h3>
+
 <div id="patientInfo"></div>
-<button id="newVisit" class="btn-success" style="margin-top: 10px;">
+
+<button id="newVisit" class="btn-success" style="margin-top:10px;">
 <i class="fas fa-plus"></i> New Visit
 </button>
+
 </div>
 </div>
 
@@ -1348,6 +879,7 @@ const popupReorder = document.getElementById('popupReorder');
 const popupReorderDate = document.getElementById('popupReorderDate');
 const popupReorderDateContainer = document.getElementById('popupReorderDateContainer');
 
+/* 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Set today's date as default visit date
@@ -1363,11 +895,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up event listeners
     setupEventListeners();
 });
+*/
+document.addEventListener('DOMContentLoaded', () => {
 
+const today = getTodayDate();
+if (visitDate) visitDate.value = today;
+
+showPane('remediesPane');
+
+fetchGoogleSheetData();
+
+setupEventListeners();
+
+setupTypeAheadSearch();
+
+});
 // PROVEN CONNECTION CODE FROM YOUR WORKING EXAMPLE
 async function fetchGoogleSheetData() {
     try {
-        remedyStatus.textContent = 'Loading remedies database from Google Sheet...';
+        /* document.getElementById('remedyCount').textContent =
+`${remediesData.length} remedies`;
+remedyStatus.style.display = 'none'; */
         remedyStatus.className = 'status-message status-info';
         addDebugLog('Starting Google Sheet data fetch');
 
@@ -1429,7 +977,9 @@ async function fetchGoogleSheetData() {
         
         // Update UI for successful connection
         document.body.style.backgroundColor = '#f0fff4';
-        remedyStatus.textContent = `✓ Successfully loaded ${remediesData.length} remedies from Google Sheet`;
+        document.getElementById('remedyCount').textContent =
+`${remediesData.length} remedies`;
+remedyStatus.style.display = 'none';
         remedyStatus.className = 'status-message status-success';
         
     } catch (error) {
@@ -1754,304 +1304,6 @@ function addDebugLog(message) {
     console.log(`[DEBUG] ${message}`);
 }
 
-/* function searchRemedies() {
-    const searchTerm = remedySearch.value.trim();
-
-    if (!searchTerm) {
-        remedyStatus.textContent = 'Please enter remedy names/potencies';
-        remedyStatus.className = 'status-message status-error';
-        return;
-    }
-
-    addDebugLog(`Searching remedies for: "${searchTerm}"`);
-
-    // Show remedies pane
-    showPane('remediesPane');
-
-    // Check if we have any remedies data
-    if (remediesData.length === 0) {
-        remedyStatus.textContent = 'No remedies data available.';
-        remedyStatus.className = 'status-message status-error';
-        addDebugLog('Cannot search - no remedies data loaded');
-        return;
-    }
-
-    const terms = searchTerm.split(',').map(t => t.trim()).filter(t => t);
-    let results = [];
-
-    terms.forEach(term => {
-        if (!term) return;
-
-        // Search for remedies starting with the term (case insensitive)
-        const termResults = remediesData.filter(remedy => {
-            const name = (remedy['Remedy Name'] || '').toLowerCase();
-            // Check if remedy name starts with the search term
-            return name.startsWith(term.toLowerCase());
-        });
-
-        results = [...results, ...termResults];
-    });
-
-    // Remove duplicates
-    results = results.filter((remedy, index, self) =>
-        index === self.findIndex(r =>
-            r['Remedy Name'] === remedy['Remedy Name'] &&
-            r['Potency'] === remedy['Potency']
-        )
-    ); 
-
-    remediesPaneTitle.textContent = 'Remedies Search Results';
-    remediesPaneSubtitle.textContent = `Found ${results.length} remedies starting with "${searchTerm}"`;
-    addDebugLog(`Found ${results.length} unique remedies starting with search terms`);
-
-    displayRemediesCards(results);
-    allRemediesTable.style.display = 'none';
-} */
-/* function searchRemedies() {
-    const searchTerm = remedySearch.value.trim();
-
-    if (!searchTerm) {
-        remedyStatus.textContent = 'Please enter remedy names/potencies';
-        remedyStatus.className = 'status-message status-error';
-        return;
-    }
-
-    addDebugLog(`Searching remedies for: "${searchTerm}"`);
-
-    // Show remedies pane
-    showPane('remediesPane');
-
-    // Check if we have any remedies data
-    if (remediesData.length === 0) {
-        remedyStatus.textContent = 'No remedies data available.';
-        remedyStatus.className = 'status-message status-error';
-        addDebugLog('Cannot search - no remedies data loaded');
-        return;
-    }
-
-    const terms = searchTerm.split(',').map(t => t.trim()).filter(t => t);
-    let results = [];
-
-    terms.forEach(term => {
-        if (!term) return;
-
-        let termResults = [];
-
-        // Check if term contains potency pattern (e.g., "Acon30", "Acon 30", "Acon200")
-        const potencyMatch = term.match(/^([a-zA-Z]+)\s*(\d+[cCmMkK]?)$/i);
-        
-        if (potencyMatch) {
-            // Pattern like "Acon30" or "Acon 30" found
-            const remedyNamePart = potencyMatch[1].toLowerCase();
-            const potencyPart = potencyMatch[2].toUpperCase();
-            
-            addDebugLog(`Searching for remedy pattern: name="${remedyNamePart}", potency="${potencyPart}"`);
-            
-            // Search for remedies matching both name and potency
-            termResults = remediesData.filter(remedy => {
-                const name = (remedy['Remedy Name'] || '').toLowerCase();
-                const potency = (remedy['Potency'] || '').toUpperCase();
-                
-                return name.startsWith(remedyNamePart) && potency.includes(potencyPart);
-            });
-        } else {
-            // Regular prefix search (original behavior)
-            addDebugLog(`Performing prefix search for: "${term}"`);
-            
-            termResults = remediesData.filter(remedy => {
-                const name = (remedy['Remedy Name'] || '').toLowerCase();
-                const potency = (remedy['Potency'] || '').toLowerCase();
-                
-                // Search in both name and potency fields
-                return name.startsWith(term.toLowerCase()) || 
-                       potency.startsWith(term.toLowerCase());
-            });
-        }
-
-        results = [...results, ...termResults];
-    });
-
-    // Remove duplicates
-    results = results.filter((remedy, index, self) =>
-        index === self.findIndex(r =>
-            r['Remedy Name'] === remedy['Remedy Name'] &&
-            r['Potency'] === remedy['Potency']
-        )
-    );
-
-    remediesPaneTitle.textContent = 'Remedies Search Results';
-    remediesPaneSubtitle.textContent = `Found ${results.length} remedies for "${searchTerm}"`;
-    addDebugLog(`Found ${results.length} unique remedies for search terms`);
-
-    displayRemediesCards(results);
-    allRemediesTable.style.display = 'none';
-}
-*/
-/* function searchRemedies() {
-    const searchTerm = remedySearch.value.trim();
-
-    if (!searchTerm) {
-        // Clear results when search is empty
-        remediesPaneTitle.textContent = 'Remedies';
-        remediesPaneSubtitle.textContent = 'Search for remedies or click "List All Remedies" to begin';
-        remediesResults.innerHTML = '';
-        allRemediesTable.style.display = 'none';
-        return;
-    }
-
-    addDebugLog(`Type-ahead searching remedies for: "${searchTerm}"`);
-
-    // Show remedies pane
-    showPane('remediesPane');
-
-    // Check if we have any remedies data
-    if (remediesData.length === 0) {
-        remedyStatus.textContent = 'No remedies data available.';
-        remedyStatus.className = 'status-message status-error';
-        addDebugLog('Cannot search - no remedies data loaded');
-        return;
-    }
-
-    const terms = searchTerm.split(',').map(t => t.trim()).filter(t => t);
-    let results = [];
-
-    terms.forEach(term => {
-        if (!term) return;
-
-        let termResults = [];
-
-        // Check if term contains potency pattern (e.g., "Acon30", "Acon 30", "Acon200")
-        const potencyMatch = term.match(/^([a-zA-Z]+)\s*(\d+[cCmMkK]?)$/i);
-        
-        if (potencyMatch) {
-            // Pattern like "Acon30" or "Acon 30" found
-            const remedyNamePart = potencyMatch[1].toLowerCase();
-            const potencyPart = potencyMatch[2].toUpperCase();
-            
-            addDebugLog(`Type-ahead searching for remedy pattern: name="${remedyNamePart}", potency="${potencyPart}"`);
-            
-            // Search for remedies matching both name and potency
-            termResults = remediesData.filter(remedy => {
-                const name = (remedy['Remedy Name'] || '').toLowerCase();
-                const potency = (remedy['Potency'] || '').toUpperCase();
-                
-                return name.startsWith(remedyNamePart) && potency.includes(potencyPart);
-            });
-        } else {
-            // Regular prefix search (original behavior)
-            addDebugLog(`Type-ahead performing prefix search for: "${term}"`);
-            
-            termResults = remediesData.filter(remedy => {
-                const name = (remedy['Remedy Name'] || '').toLowerCase();
-                const potency = (remedy['Potency'] || '').toLowerCase();
-                
-                // Search in both name and potency fields with more flexible matching
-                return name.toLowerCase().includes(term.toLowerCase()) || 
-                       potency.toLowerCase().includes(term.toLowerCase()) ||
-                       (remedy['Remedy Number'] && remedy['Remedy Number'].toString().includes(term)) ||
-                       (remedy['BOX Number'] && remedy['BOX Number'].toString().includes(term));
-            }).slice(0, 50); // Limit results for type-ahead
-        }
-
-        results = [...results, ...termResults];
-    });
-
-    // Remove duplicates
-    results = results.filter((remedy, index, self) =>
-        index === self.findIndex(r =>
-            r['Remedy Name'] === remedy['Remedy Name'] &&
-            r['Potency'] === remedy['Potency']
-        )
-    );
-
-    // If single term search, show more relevant results first
-    if (terms.length === 1) {
-        results.sort((a, b) => {
-            const nameA = a['Remedy Name'] || '';
-            const nameB = b['Remedy Name'] || '';
-            const termLower = terms[0].toLowerCase();
-            
-            // Prioritize exact matches at the beginning
-            if (nameA.toLowerCase().startsWith(termLower) && !nameB.toLowerCase().startsWith(termLower)) {
-                return -1;
-            }
-            if (!nameA.toLowerCase().startsWith(termLower) && nameB.toLowerCase().startsWith(termLower)) {
-                return 1;
-            }
-            
-            // Then prioritize potency matches
-            const potencyA = a['Potency'] || '';
-            const potencyB = b['Potency'] || '';
-            if (potencyA.includes(termLower) && !potencyB.includes(termLower)) {
-                return -1;
-            }
-            if (!potencyA.includes(termLower) && potencyB.includes(termLower)) {
-                return 1;
-            }
-            
-            return nameA.localeCompare(nameB);
-        });
-    }
-
-    // Limit results for better performance in type-ahead
-    if (results.length > 100) {
-        results = results.slice(0, 100);
-        addDebugLog(`Limited results to 100 for type-ahead display`);
-    }
-
-    remediesPaneTitle.textContent = 'Remedies Search Results';
-    remediesPaneSubtitle.textContent = `Found ${results.length} remedies for "${searchTerm}"`;
-    addDebugLog(`Found ${results.length} unique remedies for type-ahead search`);
-
-    if (results.length > 0) {
-        displayRemediesCards(results);
-    } else {
-        remediesResults.innerHTML = '<p>No remedies found. Try a different search term.</p>';
-    }
-    allRemediesTable.style.display = 'none';
-}
-
-// Set up real-time type-ahead search
-function setupTypeAheadSearch() {
-    let searchTimeout;
-    
-    remedySearch.addEventListener('input', () => {
-        // Clear previous timeout
-        clearTimeout(searchTimeout);
-        
-        // Set new timeout (300ms debounce)
-        searchTimeout = setTimeout(() => {
-            searchRemedies();
-        }, 300);
-    });
-    
-    // Also allow Enter key for immediate search
-    remedySearch.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            clearTimeout(searchTimeout);
-            searchRemedies();
-        }
-    });
-}
-
-// Update the initialization to set up type-ahead
-document.addEventListener('DOMContentLoaded', () => {
-    // Set today's date as default visit date
-    const today = getTodayDate();
-    if (visitDate) visitDate.value = today;
-
-    // Show remedies pane by default
-    showPane('remediesPane');
-
-    // Load remedies database from Google Sheets using the proven method
-    fetchGoogleSheetData();
-
-    // Set up event listeners including type-ahead
-    setupEventListeners();
-    setupTypeAheadSearch(); // Add this line
-});
-
-*/
 function searchRemedies() {
     const searchTerm = remedySearch.value.trim();
 
@@ -2216,7 +1468,7 @@ function setupTypeAheadSearch() {
         }
     });
 }
-
+/*
 // Update the initialization to set up type-ahead
 document.addEventListener('DOMContentLoaded', () => {
     // Set today's date as default visit date
@@ -2234,6 +1486,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTypeAheadSearch(); // This line should work!
 });
 
+*/
 
 function listAllRemedies() {
     addDebugLog('Listing all remedies alphabetically');
