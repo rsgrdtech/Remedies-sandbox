@@ -490,6 +490,65 @@ width: calc(100% - 10px);
 #toggleDebug{
 display:none !important;
 }
+
+
+@media (max-width:768px){
+
+/* Hide patient features */
+.patient-search-card,
+#patientForm,
+#patientSummary{
+display:none !important;
+}
+
+/* Expand remedies search section */
+.search-section{
+margin-bottom:6px;
+}
+
+/* Hide right pane header */
+#remediesPane header{
+display:none;
+}
+
+/* Make remedies appear immediately */
+.right-pane{
+padding:10px;
+}
+
+
+.container{
+flex-direction:column;
+}
+
+.left-pane{
+width:100%;
+height:auto;
+border-right:none;
+}
+
+.right-pane{
+display:block !important;
+width:100%;
+height:auto;
+}
+
+
+.remedies-results-container{
+max-height:none;
+overflow:visible;
+}
+
+.remedy-card{
+width:100%;
+}
+
+@media (max-width:768px){
+.left-pane header{
+display:none;
+}
+}
+}
 </style>
 
 </head>
@@ -529,7 +588,7 @@ Loading remedies database...
 
 <div class="card patient-search-card">
 
-<div class="search-header patient-search-header">
+<div class="search-header patient-search-header"> 
 
 <h2>Patient Search</h2>
 
@@ -541,7 +600,7 @@ Loading remedies database...
 <i class="fas fa-plus"></i> New Patient
 </button>
 
-</div>
+</div> 
 
 <div id="patientSearchBody">
 
