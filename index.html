@@ -461,93 +461,81 @@ font-size: 0.8em;
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-.remedy-card { width: calc(33.33% - 10px); }
-}
-
-@media (max-width: 992px) {
-.remedy-card { width: calc(50% - 10px); }
-}
-
-@media (max-width: 768px) {
-
-.container { flex-direction: column; }
-
-.left-pane {
-width: 100%;
-height: 40vh;
-}
-
-.right-pane {
-height: 60vh;
-}
-
-.remedy-card {
-width: calc(100% - 10px);
-}
-
-}
-#toggleDebug{
-display:none !important;
-}
-
-
 @media (max-width:768px){
 
-/* Hide patient features */
+/* Collapse layout into single column */
+.container{
+flex-direction:column;
+}
+
+/* Left pane becomes top toolbar */
+.left-pane{
+width:100%;
+height:auto;
+border-right:none;
+padding:10px;
+}
+
+/* Hide patient related UI */
 .patient-search-card,
 #patientForm,
 #patientSummary{
 display:none !important;
 }
 
-/* Expand remedies search section */
-.search-section{
-margin-bottom:6px;
-}
-
-/* Hide right pane header */
+/* Remove remedies header panel */
 #remediesPane header{
 display:none;
 }
 
-/* Make remedies appear immediately */
-.right-pane{
-padding:10px;
-}
-
-
-.container{
-flex-direction:column;
-}
-
-.left-pane{
-width:100%;
-height:auto;
-border-right:none;
-}
-
+/* Right pane becomes results area */
 .right-pane{
 display:block !important;
-width:100%;
+padding:8px;
 height:auto;
 }
 
-
+/* Remedy grid */
 .remedies-results-container{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:8px;
 max-height:none;
 overflow:visible;
 }
 
+/* Compact remedy cards */
 .remedy-card{
 width:100%;
+padding:6px;
+border-radius:6px;
 }
 
-@media (max-width:768px){
-.left-pane header{
-display:none;
+/* Remedy title */
+.remedy-name{
+font-size:0.9rem;
+font-weight:600;
+margin-bottom:2px;
 }
+
+/* Remedy number highlight */
+.remedy-number{
+font-size:1rem;
+font-weight:700;
+color:#8e24aa;
 }
+
+/* Metadata line */
+.remedy-row{
+font-size:0.7rem;
+gap:4px;
+}
+
+/* Reduce search spacing */
+.search-section{
+margin-bottom:6px;
+}
+
 }
 </style>
 
