@@ -1644,13 +1644,8 @@ card.innerHTML = `
 <span class="remedy-number">
 #${remedy['Remedy Number'] ?? 'N/A'}
 </span>
-
 <span>
-| Box ${remedy['BOX Number'] ?? 'N/A'}
-</span>
-
-<span>
-| S${remedy['Section'] ?? 'N/A'}
+| Box ${remedy['BOX Number'] ?? ''}${remedy['Section'] ?? ''}
 </span>
 
 <span>
