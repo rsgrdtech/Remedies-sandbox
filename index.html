@@ -955,23 +955,7 @@ const popupReorder = document.getElementById('popupReorder');
 const popupReorderDate = document.getElementById('popupReorderDate');
 const popupReorderDateContainer = document.getElementById('popupReorderDateContainer');
 
-/* 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    // Set today's date as default visit date
-    const today = getTodayDate();
-    if (visitDate) visitDate.value = today;
 
-    // Show remedies pane by default
-    showPane('remediesPane');
-
-    // Load remedies database from Google Sheets using the proven method
-    fetchGoogleSheetData();
-
-    // Set up event listeners
-    setupEventListeners();
-});
-*/
 document.addEventListener('DOMContentLoaded', () => {
 
 const today = getTodayDate();
@@ -2242,6 +2226,36 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
     .then(() => console.log("Service Worker Registered"));
 }
+
+
+window.addEventListener('load', () => {
+  fetchLatestData();
+});
+
+async function fetchLatestData() {
+  try {
+    const response = await fetch('/data/remedies.json', {
+      cache: 'no-store' // 🔥 important
+    });
+    const data = await response.json();
+
+    // update your UI / store data
+    console.log("Fresh data loaded", data);
+
+  } catch (err) {
+    console.log("Using cached data (offline)", err);
+  }
+}
+
+<script>
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    fetchLatestData();
+  }
+});
+
+setInterval(fetchLatestData, 300000); // 5 min
+</script>
 </script>
 </body>
 </html>
